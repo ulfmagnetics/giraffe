@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ track.title }} - {{ site_title }}{% endblock %}
+
+{% block extra_head %}
+<meta property="og:title" content="{{ track.title }}">
+<meta property="og:description" content="{{ track.category }} - {{ track.year }}">
+<meta property="og:image" content="../covers/{{ track.slug }}.jpg">
+{% endblock %}
+
+{% block content %}
+<article class="track-detail">
+    <div class="track-header">
+        <div class="track-cover-large">
+            <img src="../covers/{{ track.slug }}.jpg" alt="{{ track.title }} cover art">
+        </div>
+
+        <div class="track-metadata">
+            <h1>{{ track.title }}</h1>
+
+            <div class="meta-grid">
+                <div class="meta-item">
+                    <span class="meta-label">Year</span>
+                    <span class="meta-value">{{ track.year }}</span>
+                </div>
+
+                {% if track.category %}
+                <div class="meta-item">
+                    <span class="meta-label">Category</span>
+                    <span class="meta-value">{{ track.category }}</span>
+                </div>
+                {% endif %}
+
+                <div class="meta-item">
+                    <span class="meta-label">Status</span>
+                    <span class="meta-value status-{{ track.status }}">{{ track.status|replace('-', ' ')|title }}</span>
+                </div>
+
+                {% if track.created %}
+                <div class="meta-item">
+                    <span class="meta-label">Created</span>
+                    <span class="meta-value">{{ track.created }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if track.tags %}
+            <div class="track-tags">
+                {% for tag in track.tags %}
+                <span class="tag">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="audio-player">
+        <h2>Listen</h2>
+        <audio controls preload="metadata">
+            <source src="{{ track.mp3_url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
+        <div class="download-links">
+            <a href="{{ track.mp3_url }}" download class="btn btn-secondary">Download MP3</a>
+            <a href="{{ track.wav_url }}" download class="btn btn-secondary">Download WAV (High Quality)</a>
+        </div>
+    </div>
+
+    {% if track.content %}
+    <div class="track-content">
+        {{ track.content|safe }}
+    </div>
+    {% endif %}
+
+    <div class="track-navigation">
+        <a href="../index.html" class="btn btn-primary">← Back to all tracks</a>
+    </div>
+</article>
+{% endblock %}

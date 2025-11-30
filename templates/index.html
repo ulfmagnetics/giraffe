@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="controls">
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Search tracks..." aria-label="Search tracks">
+    </div>
+
+    <div class="filters">
+        <label>
+            <input type="checkbox" id="show-drafts" checked>
+            Show drafts
+        </label>
+
+        <div class="tag-filters" id="tag-filters">
+            <!-- Dynamically populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<div class="track-grid" id="track-grid">
+    {% for track in tracks %}
+    <article class="track-card"
+             data-title="{{ track.title|lower }}"
+             data-category="{{ track.category|lower }}"
+             data-status="{{ track.status }}"
+             data-tags="{{ track.tags|join(',') }}"
+             data-year="{{ track.year }}">
+
+        <a href="tracks/{{ track.slug }}.html" class="track-link">
+            <div class="track-cover">
+                <img src="covers/{{ track.slug }}.jpg" alt="{{ track.title }} cover art" loading="lazy">
+                {% if track.status == 'draft' %}
+                <span class="badge badge-draft">Draft</span>
+                {% elif track.status == 'work-in-progress' %}
+                <span class="badge badge-wip">WIP</span>
+                {% endif %}
+            </div>
+
+            <div class="track-info">
+                <h2 class="track-title">{{ track.title }}</h2>
+                <p class="track-meta">
+                    <span class="track-year">{{ track.year }}</span>
+                    {% if track.category %}
+                    <span class="track-category">{{ track.category }}</span>
+                    {% endif %}
+                </p>
+
+                {% if track.tags %}
+                <div class="track-tags">
+                    {% for tag in track.tags %}
+                    <span class="tag">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </a>
+    </article>
+    {% endfor %}
+</div>
+
+<div id="no-results" class="no-results" style="display: none;">
+    <p>No tracks found matching your filters.</p>
+</div>
+{% endblock %}
