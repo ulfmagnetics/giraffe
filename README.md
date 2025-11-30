@@ -133,7 +133,34 @@ To allow your GitHub Pages site to access audio files from S3:
 
 Replace `yourusername.github.io` with your actual GitHub Pages domain.
 
-#### Step 3: Create IAM User
+#### Step 3: Configure Bucket Policy for Public Access
+
+To make uploaded audio files publicly accessible (required for HTML5 audio player):
+
+1. In your S3 bucket, go to the **Permissions** tab
+2. Scroll to **Bucket policy**
+3. Click **Edit** and add this policy (replace `YOUR-BUCKET-NAME`):
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
+        }
+    ]
+}
+```
+
+4. Click **Save changes**
+
+This policy allows anyone to download (read) files from your bucket, but only you can upload files (via the IAM user credentials).
+
+#### Step 4: Create IAM User
 
 For security, create a dedicated IAM user with limited S3 permissions:
 
@@ -154,7 +181,6 @@ For security, create a dedicated IAM user with limited S3 permissions:
             "Effect": "Allow",
             "Action": [
                 "s3:PutObject",
-                "s3:PutObjectAcl",
                 "s3:GetObject",
                 "s3:ListBucket"
             ],
@@ -171,7 +197,7 @@ For security, create a dedicated IAM user with limited S3 permissions:
 10. Attach the policy to your new user
 11. **Save the Access Key ID and Secret Access Key** (you'll need these for `.env`)
 
-#### Step 4: Update .env File
+#### Step 5: Update .env File
 
 Add your AWS credentials to `.env`:
 
@@ -354,18 +380,19 @@ sudo apt install ffmpeg
 
 **Solution**:
 1. Verify credentials in `.env`
-2. Check IAM policy allows `s3:PutObject` and `s3:PutObjectAcl`
+2. Check IAM policy allows `s3:PutObject`, `s3:GetObject`, and `s3:ListBucket`
 3. Verify bucket name matches exactly
 
 ### Audio doesn't play on GitHub Pages
 
 **Possible causes**:
 - CORS policy not configured on S3 bucket
-- Audio files not public in S3
+- Bucket policy not configured for public read access
+- Audio files not accessible
 
 **Solution**:
-1. Add CORS policy (see [Configuration](#configuration))
-2. Ensure files are uploaded with `public-read` ACL (build script does this automatically)
+1. Add CORS policy (see Step 2 in [Configuration](#configuration))
+2. Add bucket policy for public read access (see Step 3 in [Configuration](#configuration))
 
 ### Tracks not appearing
 

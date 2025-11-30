@@ -282,7 +282,7 @@ class GiraffeBuilder:
                 str(mp3_path),
                 self.config.s3_bucket,
                 mp3_key,
-                ExtraArgs={'ContentType': 'audio/mpeg', 'ACL': 'public-read'}
+                ExtraArgs={'ContentType': 'audio/mpeg'}
             )
             track.mp3_url = f"{self.config.s3_base_url}/{mp3_key}"
             print(f"  ✓ MP3 uploaded")
@@ -294,7 +294,7 @@ class GiraffeBuilder:
                 str(track.wav_path),
                 self.config.s3_bucket,
                 wav_key,
-                ExtraArgs={'ContentType': 'audio/wav', 'ACL': 'public-read'}
+                ExtraArgs={'ContentType': 'audio/wav'}
             )
             track.wav_url = f"{self.config.s3_base_url}/{wav_key}"
             print(f"  ✓ WAV uploaded")
