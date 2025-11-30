@@ -59,6 +59,7 @@ class Track:
         self.wav_path = None
         self.mp3_path = None
         self.cover_path = None
+        self.image_paths = []  # All images in the track folder
         self.mp3_url = ""
         self.wav_url = ""
 
@@ -109,14 +110,18 @@ class Track:
             print(f"Warning: No WAV file found in {self.directory}")
             return False
 
-        # Find cover image
-        for ext in ['jpg', 'jpeg', 'png', 'JPG', 'JPEG', 'PNG']:
-            cover_files = list(self.directory.glob(f'*.{ext}'))
-            if cover_files:
-                self.cover_path = cover_files[0]
-                break
+        # Find all image files (for carousel support)
+        image_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'JPG', 'JPEG', 'PNG', 'GIF', 'WEBP']
+        for ext in image_extensions:
+            self.image_paths.extend(self.directory.glob(f'*.{ext}'))
 
-        if not self.cover_path:
+        # Sort images by name for consistent ordering
+        self.image_paths = sorted(self.image_paths, key=lambda p: p.name)
+
+        # First image is the primary cover
+        if self.image_paths:
+            self.cover_path = self.image_paths[0]
+        else:
             print(f"Warning: No cover image found in {self.directory}")
             return False
 
@@ -150,6 +155,18 @@ class Track:
     @property
     def modified(self) -> str:
         return str(self.metadata.get('modified', ''))
+
+    @property
+    def cover_filename(self) -> str:
+        """Get the filename of the primary cover image"""
+        if self.cover_path:
+            return f"{self.slug}-{self.cover_path.name}"
+        return ""
+
+    @property
+    def image_filenames(self) -> List[str]:
+        """Get filenames of all images for this track"""
+        return [f"{self.slug}-{img.name}" for img in self.image_paths]
 
 
 class GiraffeBuilder:
@@ -325,13 +342,15 @@ class GiraffeBuilder:
             shutil.copytree(self.assets_dir, dest_assets)
             print("  ✓ Copied assets")
 
-        # Copy cover images
+        # Copy all track images
+        image_count = 0
         for track in tracks:
-            if track.cover_path:
-                # Convert to JPG for web (keep original extension for now)
-                dest_cover = self.output_dir / 'covers' / f"{track.slug}{track.cover_path.suffix}"
-                shutil.copy2(track.cover_path, dest_cover)
-        print("  ✓ Copied cover images")
+            for img_path in track.image_paths:
+                # Prefix with track slug to avoid naming collisions
+                dest_img = self.output_dir / 'covers' / f"{track.slug}-{img_path.name}"
+                shutil.copy2(img_path, dest_img)
+                image_count += 1
+        print(f"  ✓ Copied {image_count} image(s)")
 
         # Generate track pages
         track_template = self.jinja_env.get_template('track.html')

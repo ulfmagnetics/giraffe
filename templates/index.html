@@ -29,7 +29,7 @@
 
         <a href="tracks/{{ track.slug }}.html" class="track-link">
             <div class="track-cover">
-                <img src="covers/{{ track.slug }}.jpg" alt="{{ track.title }} cover art" loading="lazy">
+                <img src="covers/{{ track.cover_filename }}" alt="{{ track.title }} cover art" loading="lazy">
                 {% if track.status == 'draft' %}
                 <span class="badge badge-draft">Draft</span>
                 {% elif track.status == 'work-in-progress' %}

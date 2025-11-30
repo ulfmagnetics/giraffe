@@ -130,4 +130,57 @@
         `;
         document.head.appendChild(style);
     }
+
+    // Image Carousel (for track detail pages)
+    function initCarousel() {
+        const carousel = document.querySelector('[data-carousel]');
+        if (!carousel) return;
+
+        const images = carousel.querySelectorAll('.carousel-image');
+        const dots = carousel.querySelectorAll('.carousel-dot');
+        const prevBtn = carousel.querySelector('.carousel-prev');
+        const nextBtn = carousel.querySelector('.carousel-next');
+        let currentIndex = 0;
+
+        function showImage(index) {
+            // Wrap around
+            if (index < 0) index = images.length - 1;
+            if (index >= images.length) index = 0;
+
+            // Update images
+            images.forEach((img, i) => {
+                img.classList.toggle('active', i === index);
+            });
+
+            // Update dots
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            currentIndex = index;
+        }
+
+        // Navigation buttons
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => showImage(currentIndex - 1));
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => showImage(currentIndex + 1));
+        }
+
+        // Dot navigation
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => showImage(index));
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') showImage(currentIndex - 1);
+            if (e.key === 'ArrowRight') showImage(currentIndex + 1);
+        });
+    }
+
+    // Initialize carousel if on track page
+    initCarousel();
 })();

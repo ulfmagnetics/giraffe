@@ -5,14 +5,37 @@
 {% block extra_head %}
 <meta property="og:title" content="{{ track.title }}">
 <meta property="og:description" content="{{ track.category }} - {{ track.year }}">
-<meta property="og:image" content="../covers/{{ track.slug }}.jpg">
+<meta property="og:image" content="../covers/{{ track.cover_filename }}">
 {% endblock %}
 
 {% block content %}
 <article class="track-detail">
     <div class="track-header">
         <div class="track-cover-large">
-            <img src="../covers/{{ track.slug }}.jpg" alt="{{ track.title }} cover art">
+            {% if track.image_filenames|length > 1 %}
+            {# Multiple images - show carousel #}
+            <div class="carousel" data-carousel>
+                <div class="carousel-images">
+                    {% for img_filename in track.image_filenames %}
+                    <img src="../covers/{{ img_filename }}"
+                         alt="{{ track.title }} image {{ loop.index }}"
+                         class="carousel-image {% if loop.first %}active{% endif %}">
+                    {% endfor %}
+                </div>
+                <button class="carousel-btn carousel-prev" aria-label="Previous image">‹</button>
+                <button class="carousel-btn carousel-next" aria-label="Next image">›</button>
+                <div class="carousel-dots">
+                    {% for img_filename in track.image_filenames %}
+                    <button class="carousel-dot {% if loop.first %}active{% endif %}"
+                            data-index="{{ loop.index0 }}"
+                            aria-label="Go to image {{ loop.index }}"></button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            {# Single image #}
+            <img src="../covers/{{ track.cover_filename }}" alt="{{ track.title }} cover art">
+            {% endif %}
         </div>
 
         <div class="track-metadata">
