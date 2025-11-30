@@ -183,4 +183,102 @@
 
     // Initialize carousel if on track page
     initCarousel();
+
+    // Lightbox functionality
+    function initLightbox() {
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImage = document.getElementById('lightbox-image');
+        if (!lightbox || !lightboxImage) return;
+
+        const closeBtn = lightbox.querySelector('.lightbox-close');
+        const prevBtn = lightbox.querySelector('.lightbox-prev');
+        const nextBtn = lightbox.querySelector('.lightbox-next');
+
+        // Get all clickable images
+        const images = Array.from(document.querySelectorAll('.track-cover-large img, .carousel-image'));
+        let currentLightboxIndex = 0;
+
+        function openLightbox(index) {
+            currentLightboxIndex = index;
+            const imgSrc = images[index].src;
+            lightboxImage.src = imgSrc;
+            lightboxImage.alt = images[index].alt;
+
+            lightbox.style.display = 'flex';
+            // Trigger reflow for animation
+            setTimeout(() => lightbox.classList.add('active'), 10);
+
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            setTimeout(() => {
+                lightbox.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function showLightboxImage(index) {
+            if (index < 0) index = images.length - 1;
+            if (index >= images.length) index = 0;
+
+            currentLightboxIndex = index;
+            lightboxImage.src = images[index].src;
+            lightboxImage.alt = images[index].alt;
+        }
+
+        // Click on images to open lightbox
+        images.forEach((img, index) => {
+            img.addEventListener('click', (e) => {
+                // Don't open lightbox if clicking carousel buttons
+                if (e.target.closest('.carousel-btn')) return;
+                openLightbox(index);
+            });
+        });
+
+        // Close lightbox
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeLightbox);
+        }
+
+        // Click outside image to close
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox || e.target === lightboxImage) {
+                closeLightbox();
+            }
+        });
+
+        // Navigation buttons in lightbox
+        if (prevBtn) {
+            prevBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showLightboxImage(currentLightboxIndex - 1);
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showLightboxImage(currentLightboxIndex + 1);
+            });
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (lightbox.style.display === 'none') return;
+
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft' && images.length > 1) {
+                showLightboxImage(currentLightboxIndex - 1);
+            } else if (e.key === 'ArrowRight' && images.length > 1) {
+                showLightboxImage(currentLightboxIndex + 1);
+            }
+        });
+    }
+
+    // Initialize lightbox
+    initLightbox();
 })();

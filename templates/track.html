@@ -100,4 +100,16 @@
         <a href="../index.html" class="btn btn-primary">← Back to all tracks</a>
     </div>
 </article>
+
+{# Lightbox for full-size image viewing #}
+<div id="lightbox" class="lightbox" style="display: none;">
+    <button class="lightbox-close" aria-label="Close lightbox">&times;</button>
+    <div class="lightbox-content">
+        <img id="lightbox-image" src="" alt="">
+        {% if track.image_filenames|length > 1 %}
+        <button class="lightbox-btn lightbox-prev" aria-label="Previous image">‹</button>
+        <button class="lightbox-btn lightbox-next" aria-label="Next image">›</button>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
