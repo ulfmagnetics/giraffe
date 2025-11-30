@@ -42,10 +42,12 @@
             <h1>{{ track.title }}</h1>
 
             <div class="meta-grid">
+                {% if track.year %}
                 <div class="meta-item">
                     <span class="meta-label">Year</span>
                     <span class="meta-value">{{ track.year }}</span>
                 </div>
+                {% endif %}
 
                 {% if track.category %}
                 <div class="meta-item">

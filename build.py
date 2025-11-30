@@ -39,6 +39,7 @@ class Config:
         self.site_title = os.getenv('SITE_TITLE', 'My Music Portfolio')
         self.site_description = os.getenv('SITE_DESCRIPTION', 'A collection of my music tracks')
         self.site_author = os.getenv('SITE_AUTHOR', 'Artist')
+        self.github_username = os.getenv('GITHUB_USERNAME', 'yourusername')
         self.mp3_bitrate = os.getenv('MP3_BITRATE', '192')
         self.mp3_quality = os.getenv('MP3_QUALITY', '2')
 
@@ -361,6 +362,7 @@ class GiraffeBuilder:
                 track=track,
                 site_title=self.config.site_title,
                 site_description=self.config.site_description,
+                github_username=self.config.github_username,
                 is_track=True
             )
 
@@ -375,6 +377,7 @@ class GiraffeBuilder:
             tracks=tracks,
             site_title=self.config.site_title,
             site_description=self.config.site_description,
+            github_username=self.config.github_username,
             is_track=False
         )
 

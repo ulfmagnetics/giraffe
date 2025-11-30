@@ -16,7 +16,6 @@
         if (!trackGrid) return;
 
         const searchInput = document.getElementById('search');
-        const showDraftsCheckbox = document.getElementById('show-drafts');
         const tagFiltersContainer = document.getElementById('tag-filters');
         const noResults = document.getElementById('no-results');
         const trackCards = Array.from(document.querySelectorAll('.track-card'));
@@ -49,14 +48,9 @@
             searchInput.addEventListener('input', filterTracks);
         }
 
-        if (showDraftsCheckbox) {
-            showDraftsCheckbox.addEventListener('change', filterTracks);
-        }
-
         // Filter function
         function filterTracks() {
             const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
-            const showDrafts = showDraftsCheckbox ? showDraftsCheckbox.checked : true;
             const activeTagButtons = document.querySelectorAll('.tag-filter.active');
             const activeTags = Array.from(activeTagButtons).map(btn => btn.dataset.tag);
 
@@ -74,14 +68,6 @@
 
                     const searchableText = `${title} ${category} ${year} ${tags}`.toLowerCase();
                     if (!searchableText.includes(searchTerm)) {
-                        visible = false;
-                    }
-                }
-
-                // Filter by draft status
-                if (!showDrafts) {
-                    const status = card.dataset.status;
-                    if (status === 'draft') {
                         visible = false;
                     }
                 }
