@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laughin and Stabbin</title>
+    <meta name="description" content="Experiments, Sketches, Drafts">
+    <link rel="stylesheet" href="assets/style.css">
+    
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><a href="index.html">Laughin and Stabbin</a></h1>
+            <p class="tagline">Experiments, Sketches, Drafts</p>
+        </div>
+    </header>
+
+    <main class="container">
+        
+<div class="controls">
+    <div class="search-box">
+        <input type="text" id="search" placeholder="Search tracks..." aria-label="Search tracks">
+    </div>
+
+    <div class="filters">
+        <label>
+            <input type="checkbox" id="show-drafts" checked>
+            Show drafts
+        </label>
+
+        <div class="tag-filters" id="tag-filters">
+            <!-- Dynamically populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<div class="track-grid" id="track-grid">
+    
+    <article class="track-card"
+             data-title="2025-11-25 wavetable vco"
+             data-category=""
+             data-status="work-in-progress"
+             data-tags="vcv-rack-pro,wavetable,quantizer,quantify"
+             data-year="">
+
+        <a href="tracks/2025-11-25-wavetable-vco.html" class="track-link">
+            <div class="track-cover">
+                <img src="covers/2025-11-25-wavetable-vco.jpg" alt="2025-11-25 Wavetable VCO cover art" loading="lazy">
+                
+                <span class="badge badge-wip">WIP</span>
+                
+            </div>
+
+            <div class="track-info">
+                <h2 class="track-title">2025-11-25 Wavetable VCO</h2>
+                <p class="track-meta">
+                    <span class="track-year"></span>
+                    
+                </p>
+
+                
+                <div class="track-tags">
+                    
+                    <span class="tag">vcv-rack-pro</span>
+                    
+                    <span class="tag">wavetable</span>
+                    
+                    <span class="tag">quantizer</span>
+                    
+                    <span class="tag">quantify</span>
+                    
+                </div>
+                
+            </div>
+        </a>
+    </article>
+    
+</div>
+
+<div id="no-results" class="no-results" style="display: none;">
+    <p>No tracks found matching your filters.</p>
+</div>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>Built with <a href="https://github.com/yourusername/giraffe" target="_blank">Giraffe</a> &mdash; A static music portfolio generator</p>
+        </div>
+    </footer>
+
+    <script src="assets/app.js"></script>
+    
+</body>
+</html>

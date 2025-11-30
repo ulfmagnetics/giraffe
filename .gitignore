@@ -14,9 +14,6 @@ build/
 # Environment variables
 .env
 
-# Generated site
-docs/
-
 # User tracks (keep structure, ignore content)
 tracks/*/
 
