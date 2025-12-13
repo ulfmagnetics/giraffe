@@ -79,6 +79,7 @@
         </div>
     </div>
 
+    {% if track.mp3_url %}
     <div class="audio-player">
         <h2>Listen</h2>
         <audio controls preload="metadata">
@@ -88,9 +89,12 @@
 
         <div class="download-links">
             <a href="{{ track.mp3_url }}" download class="btn btn-secondary">Download MP3</a>
+            {% if track.wav_url %}
             <a href="{{ track.wav_url }}" download class="btn btn-secondary">Download WAV (High Quality)</a>
+            {% endif %}
         </div>
     </div>
+    {% endif %}
 
     {% if track.content %}
     <div class="track-content">
