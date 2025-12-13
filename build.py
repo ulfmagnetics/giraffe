@@ -11,6 +11,7 @@ import re
 import sys
 import subprocess
 import shutil
+import argparse
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -173,8 +174,9 @@ class Track:
 class GiraffeBuilder:
     """Main builder class"""
 
-    def __init__(self):
+    def __init__(self, static_only=False):
         self.config = Config()
+        self.static_only = static_only
         self.base_dir = Path(__file__).parent
         self.tracks_dir = self.base_dir / 'tracks'
         self.output_dir = self.base_dir / 'docs'
@@ -392,10 +394,12 @@ class GiraffeBuilder:
         """Main build process"""
         print("=" * 60)
         print("Giraffe - Music Portfolio Builder")
+        if self.static_only:
+            print("(Static-only mode: skipping audio processing)")
         print("=" * 60)
 
-        # Check dependencies
-        if not self.check_dependencies():
+        # Check dependencies (skip in static-only mode)
+        if not self.static_only and not self.check_dependencies():
             return False
 
         # Scan tracks
@@ -410,21 +414,24 @@ class GiraffeBuilder:
         print(f"\nFound {len(tracks)} track(s) to process\n")
 
         # Process each track
-        for i, track in enumerate(tracks, 1):
-            print(f"[{i}/{len(tracks)}] {track.title}")
+        if not self.static_only:
+            for i, track in enumerate(tracks, 1):
+                print(f"[{i}/{len(tracks)}] {track.title}")
 
-            # Encode MP3
-            mp3_path = self.encode_mp3(track)
-            if not mp3_path:
-                print(f"  ⚠ Skipping due to encoding error")
-                continue
+                # Encode MP3
+                mp3_path = self.encode_mp3(track)
+                if not mp3_path:
+                    print(f"  ⚠ Skipping due to encoding error")
+                    continue
 
-            track.mp3_path = mp3_path
+                track.mp3_path = mp3_path
 
-            # Upload to S3
-            self.upload_to_s3(track, mp3_path)
+                # Upload to S3
+                self.upload_to_s3(track, mp3_path)
 
-            print()
+                print()
+        else:
+            print("Skipping audio encoding and upload (static-only mode)\n")
 
         # Generate static site
         if not self.generate_site(tracks):
@@ -445,7 +452,24 @@ class GiraffeBuilder:
 
 def main():
     """Entry point"""
-    builder = GiraffeBuilder()
+    parser = argparse.ArgumentParser(
+        description='Giraffe - Music Portfolio Automation System',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python build.py                    # Full build (encode, upload, generate)
+  python build.py --static-only      # Only regenerate HTML/CSS (skip audio)
+        """
+    )
+    parser.add_argument(
+        '--static-only',
+        action='store_true',
+        help='Skip audio encoding and S3 upload, only regenerate static site'
+    )
+
+    args = parser.parse_args()
+
+    builder = GiraffeBuilder(static_only=args.static_only)
     success = builder.build()
     sys.exit(0 if success else 1)
 
