@@ -12,6 +12,7 @@ import sys
 import subprocess
 import shutil
 import argparse
+import hashlib
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -288,6 +289,61 @@ class GiraffeBuilder:
             print(f"  Error: {e}")
             return None
 
+    def calculate_md5(self, file_path: Path) -> str:
+        """Calculate MD5 hash of a file"""
+        hash_md5 = hashlib.md5()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def file_needs_upload(self, local_path: Path, s3_key: str) -> tuple[bool, Optional[str]]:
+        """Check if local file needs to be uploaded to S3
+
+        Returns:
+            tuple: (needs_upload: bool, etag: Optional[str])
+            - needs_upload: True if file should be uploaded, False to skip
+            - etag: S3 ETag if file exists, None otherwise
+        """
+        if not self.s3_client:
+            return (True, None)
+
+        try:
+            # Check if file exists in S3 and get its ETag
+            response = self.s3_client.head_object(
+                Bucket=self.config.s3_bucket,
+                Key=s3_key
+            )
+            s3_etag = response['ETag'].strip('"')  # Remove quotes from ETag
+            s3_size = response.get('ContentLength', 0)
+
+            # Get local file size
+            local_size = local_path.stat().st_size
+
+            # Check if ETag indicates multipart upload (contains hyphen)
+            if '-' in s3_etag:
+                # Multipart upload - compare file sizes instead of MD5
+                if s3_size == local_size:
+                    return (False, s3_etag)  # Same size, likely unchanged
+                else:
+                    return (True, s3_etag)  # Different size, needs upload
+            else:
+                # Simple upload - compare MD5 hash
+                local_md5 = self.calculate_md5(local_path)
+
+                if s3_etag == local_md5:
+                    return (False, s3_etag)  # Hash matches, skip upload
+                else:
+                    return (True, s3_etag)  # Hash differs, need upload
+
+        except self.s3_client.exceptions.ClientError as e:
+            if e.response['Error']['Code'] == '404':
+                return (True, None)  # File doesn't exist, need upload
+            else:
+                # Other error, safer to attempt upload
+                print(f"  ⚠ Error checking S3: {e}")
+                return (True, None)
+
     def upload_to_s3(self, track: Track, mp3_path: Path) -> bool:
         """Upload WAV and MP3 files to S3"""
         if not self.s3_client or not self.config.s3_bucket:
@@ -297,27 +353,47 @@ class GiraffeBuilder:
         try:
             # Upload MP3
             mp3_key = f"{track.slug}/{track.slug}.mp3"
-            print(f"  Uploading MP3 to S3...")
-            self.s3_client.upload_file(
-                str(mp3_path),
-                self.config.s3_bucket,
-                mp3_key,
-                ExtraArgs={'ContentType': 'audio/mpeg'}
-            )
+            needs_upload, etag = self.file_needs_upload(mp3_path, mp3_key)
+
+            if needs_upload:
+                print(f"  Uploading MP3 to S3...")
+                self.s3_client.upload_file(
+                    str(mp3_path),
+                    self.config.s3_bucket,
+                    mp3_key,
+                    ExtraArgs={'ContentType': 'audio/mpeg'}
+                )
+                print(f"  ✓ MP3 uploaded")
+            else:
+                etag_display = etag[:8] if etag else "unknown"
+                comparison = "size" if etag and '-' in etag else "MD5"
+                print(f"  ✓ MP3 already on S3 (unchanged, {comparison} match, ETag: {etag_display}...)")
+
             track.mp3_url = f"{self.config.s3_base_url}/{mp3_key}"
-            print(f"  ✓ MP3 uploaded")
 
             # Upload WAV
             wav_key = f"{track.slug}/{track.slug}.wav"
-            print(f"  Uploading WAV to S3...")
-            self.s3_client.upload_file(
-                str(track.wav_path),
-                self.config.s3_bucket,
-                wav_key,
-                ExtraArgs={'ContentType': 'audio/wav'}
-            )
+            if not track.wav_path:
+                print(f"  ⚠ WAV file path not found, skipping upload")
+                return False
+
+            needs_upload, etag = self.file_needs_upload(track.wav_path, wav_key)
+
+            if needs_upload:
+                print(f"  Uploading WAV to S3...")
+                self.s3_client.upload_file(
+                    str(track.wav_path),
+                    self.config.s3_bucket,
+                    wav_key,
+                    ExtraArgs={'ContentType': 'audio/wav'}
+                )
+                print(f"  ✓ WAV uploaded")
+            else:
+                etag_display = etag[:8] if etag else "unknown"
+                comparison = "size" if etag and '-' in etag else "MD5"
+                print(f"  ✓ WAV already on S3 (unchanged, {comparison} match, ETag: {etag_display}...)")
+
             track.wav_url = f"{self.config.s3_base_url}/{wav_key}"
-            print(f"  ✓ WAV uploaded")
 
             return True
 
