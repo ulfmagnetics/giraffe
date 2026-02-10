@@ -76,6 +76,36 @@ header .tagline {
     gap: 1rem;
 }
 
+.search-sort-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: stretch;
+}
+
+.sort-btn {
+    flex-shrink: 0;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-family: 'fixedsys', 'Courier New', 'Courier', monospace;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.sort-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.search-box {
+    flex: 1;
+    min-width: 0;
+}
+
 .search-box input {
     width: 100%;
     padding: 0.75rem 1rem;

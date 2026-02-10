@@ -43,6 +43,29 @@
             tagFiltersContainer.appendChild(button);
         });
 
+        // Sort toggle
+        const sortToggle = document.getElementById('sort-toggle');
+        if (sortToggle) {
+            sortToggle.addEventListener('click', function() {
+                const currentOrder = this.dataset.order;
+                const newOrder = currentOrder === 'desc' ? 'asc' : 'desc';
+                this.dataset.order = newOrder;
+                this.textContent = newOrder === 'desc' ? 'Newest first \u2193' : 'Oldest first \u2191';
+                sortTracks(newOrder);
+            });
+        }
+
+        function sortTracks(order) {
+            const sorted = trackCards.slice().sort(function(a, b) {
+                const dateA = a.dataset.date || '';
+                const dateB = b.dataset.date || '';
+                return order === 'asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+            });
+            sorted.forEach(function(card) {
+                trackGrid.appendChild(card);
+            });
+        }
+
         // Event listeners
         if (searchInput) {
             searchInput.addEventListener('input', filterTracks);

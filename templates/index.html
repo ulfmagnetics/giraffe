@@ -2,8 +2,11 @@
 
 {% block content %}
 <div class="controls">
-    <div class="search-box">
-        <input type="text" id="search" placeholder="Search tracks..." aria-label="Search tracks">
+    <div class="search-sort-row">
+        <div class="search-box">
+            <input type="text" id="search" placeholder="Search tracks..." aria-label="Search tracks">
+        </div>
+        <button id="sort-toggle" class="sort-btn" data-order="desc" aria-label="Toggle sort order">Newest first ↓</button>
     </div>
 
     <div class="filters">
@@ -20,7 +23,8 @@
              data-category="{{ track.category|lower }}"
              data-status="{{ track.status }}"
              data-tags="{{ track.tags|join(',') }}"
-             data-year="{{ track.year }}">
+             data-year="{{ track.year }}"
+             data-date="{{ track.slug }}">
 
         <a href="tracks/{{ track.slug }}.html" class="track-link">
             <div class="track-cover">

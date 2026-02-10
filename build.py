@@ -225,7 +225,7 @@ class GiraffeBuilder:
             print(f"Error: Tracks directory not found: {self.tracks_dir}")
             return tracks
 
-        for track_dir in sorted(self.tracks_dir.iterdir()):
+        for track_dir in sorted(self.tracks_dir.iterdir(), reverse=True):
             if not track_dir.is_dir():
                 continue
 
